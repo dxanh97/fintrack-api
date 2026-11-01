@@ -8,6 +8,7 @@ class TransactionRepository(Protocol):
     def add(self, transaction: Transaction) -> None: ...
     def get_by_id(self, transaction_id: UUID) -> Transaction | None: ...
     def get(self, page: int, size: int) -> tuple[list[Transaction], PageMetadata]: ...
+    def get_all(self) -> list[Transaction]: ...
     def delete(self, transaction_id: UUID) -> None: ...
     def update(self, transaction: Transaction) -> None: ...
 
@@ -24,17 +25,14 @@ class InMemoryTransactionRepository:
 
     def get(self, page: int, size: int) -> tuple[list[Transaction], PageMetadata]:
         transactions = list(self._transactions.values())
-        if size == -1:
-            metadata = PageMetadata(
-                page=0, size=len(transactions), total=len(transactions)
-            )
-            return transactions, metadata
-
         start = page * size
         end = start + size
         page_transactions = transactions[start:end]
         metadata = PageMetadata(page=page, size=size, total=len(transactions))
         return page_transactions, metadata
+
+    def get_all(self) -> list[Transaction]:
+        return list(self._transactions.values())
 
     def delete(self, transaction_id: UUID) -> None:
         if transaction_id in self._transactions:

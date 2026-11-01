@@ -43,7 +43,7 @@ class TransactionService:
         return updated_transaction
 
     def summary(self) -> SummaryRead:
-        transactions, _ = self._repo.get(0, -1)
+        transactions = self._repo.get_all()
         income = sum(t.amount for t in transactions if t.type == "income")
         expense = sum(t.amount for t in transactions if t.type == "expense")
         balance = income - expense

@@ -24,7 +24,7 @@ class TransactionUpdate(BaseModel):
 
     title: Title | None = None
     amount: Amount | None = None
-    type: TransactionType
+    type: TransactionType | None = None
 
 
 class TransactionRead(BaseModel):
