@@ -24,6 +24,12 @@ class InMemoryTransactionRepository:
 
     def get(self, page: int, size: int) -> tuple[list[Transaction], PageMetadata]:
         transactions = list(self._transactions.values())
+        if size == -1:
+            metadata = PageMetadata(
+                page=0, size=len(transactions), total=len(transactions)
+            )
+            return transactions, metadata
+
         start = page * size
         end = start + size
         page_transactions = transactions[start:end]

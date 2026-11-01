@@ -4,7 +4,11 @@ from uuid import UUID, uuid4
 from app.handlers.transactions.exceptions import TransactionNotFoundError
 from app.handlers.transactions.models import PageMetadata, Transaction
 from app.handlers.transactions.repository import TransactionRepository
-from app.handlers.transactions.schemas import TransactionCreate, TransactionUpdate
+from app.handlers.transactions.schemas import (
+    SummaryRead,
+    TransactionCreate,
+    TransactionUpdate,
+)
 
 
 class TransactionService:
@@ -37,3 +41,10 @@ class TransactionService:
         updated_transaction = replace(transaction, **changes)
         self._repo.update(updated_transaction)
         return updated_transaction
+
+    def summary(self) -> SummaryRead:
+        transactions, _ = self._repo.get(0, -1)
+        income = sum(t.amount for t in transactions if t.type == "income")
+        expense = sum(t.amount for t in transactions if t.type == "expense")
+        balance = income - expense
+        return SummaryRead(income=income, expense=expense, balance=balance)

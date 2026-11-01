@@ -5,6 +5,7 @@ from fastapi import APIRouter, Query
 
 from app.handlers.transactions.dependencies import TransactionServiceDep
 from app.handlers.transactions.schemas import (
+    SummaryRead,
     TransactionCreate,
     TransactionPageRead,
     TransactionRead,
@@ -52,3 +53,11 @@ async def delete_transaction(
     service: TransactionServiceDep,
 ):
     service.delete(transaction_id)
+
+
+@router.get("/summary", response_model=SummaryRead)
+async def get_summary(
+    service: TransactionServiceDep,
+):
+    summary = service.summary()
+    return summary

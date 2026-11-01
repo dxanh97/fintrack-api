@@ -42,3 +42,11 @@ class TransactionPageRead(BaseModel):
 
     transactions: list[TransactionRead]
     total: int
+
+
+class SummaryRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    income: Decimal
+    expense: Decimal
+    balance: Decimal
