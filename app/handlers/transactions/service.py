@@ -1,8 +1,9 @@
 from dataclasses import replace
+from decimal import Decimal
 from uuid import UUID, uuid4
 
 from app.handlers.transactions.exceptions import TransactionNotFoundError
-from app.handlers.transactions.models import PageMetadata, Transaction
+from app.handlers.transactions.models import PageMetadata, Transaction, TransactionType
 from app.handlers.transactions.repository import TransactionRepository
 from app.handlers.transactions.schemas import (
     SummaryRead,
@@ -44,7 +45,13 @@ class TransactionService:
 
     def summary(self) -> SummaryRead:
         transactions = self._repo.get_all()
-        income = sum(t.amount for t in transactions if t.type == "income")
-        expense = sum(t.amount for t in transactions if t.type == "expense")
+        income = sum(
+            (t.amount for t in transactions if t.type == TransactionType.INCOME),
+            Decimal(0),
+        )
+        expense = sum(
+            (t.amount for t in transactions if t.type == TransactionType.EXPENSE),
+            Decimal(0),
+        )
         balance = income - expense
         return SummaryRead(income=income, expense=expense, balance=balance)

@@ -47,7 +47,7 @@ async def update_transaction(
     return updated_transaction
 
 
-@router.delete("/{transaction_id}", status_code=204)
+@router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_transaction(
     transaction_id: UUID,
     service: TransactionServiceDep,
