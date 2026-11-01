@@ -5,8 +5,10 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.handlers.transactions.models import TransactionType
+
 Title = Annotated[str, Field(min_length=1, max_length=200)]
-Amount = Annotated[Decimal, Field(gt=0, max_digits=10, decimal_places=2)]
+Amount = Annotated[Decimal, Field(gt=0, max_digits=20, decimal_places=2)]
 
 
 class TransactionCreate(BaseModel):
@@ -14,6 +16,7 @@ class TransactionCreate(BaseModel):
 
     title: Title
     amount: Amount
+    type: TransactionType
 
 
 class TransactionUpdate(BaseModel):
@@ -21,6 +24,7 @@ class TransactionUpdate(BaseModel):
 
     title: Title | None = None
     amount: Amount | None = None
+    type: TransactionType
 
 
 class TransactionRead(BaseModel):
@@ -29,4 +33,12 @@ class TransactionRead(BaseModel):
     id: UUID
     title: str
     amount: Decimal
+    type: TransactionType
     created_at: datetime
+
+
+class TransactionPageRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    transactions: list[TransactionRead]
+    total: int

@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from app.handlers.health.router import router as health_router
@@ -14,6 +14,9 @@ app.include_router(transactions_router)
 
 
 @app.exception_handler(TransactionNotFoundError)
-def handle_transaction_not_found(request, exc):
-    # status code
-    return JSONResponse(status_code=404, content={"detail": str(exc)})
+def handle_transaction_not_found(
+    request: Request, exc: TransactionNotFoundError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc)}
+    )

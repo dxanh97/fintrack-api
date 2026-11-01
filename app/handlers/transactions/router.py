@@ -6,6 +6,7 @@ from fastapi import APIRouter, Query
 from app.handlers.transactions.dependencies import TransactionServiceDep
 from app.handlers.transactions.schemas import (
     TransactionCreate,
+    TransactionPageRead,
     TransactionRead,
     TransactionUpdate,
 )
@@ -13,13 +14,17 @@ from app.handlers.transactions.schemas import (
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 
-@router.get("", response_model=list[TransactionRead])
+@router.get("", response_model=TransactionPageRead)
 async def get_transactions(
     service: TransactionServiceDep,
-    limit: Annotated[int, Query(gt=0, le=100)] = 10,
+    page: Annotated[int, Query(ge=0)] = 0,
+    size: Annotated[int, Query(ge=0, le=100)] = 10,
 ):
-    transactions = service.list_all()
-    return transactions
+    (transactions, page_metadata) = service.get(page, size)
+    return TransactionPageRead(
+        transactions=transactions,
+        total=page_metadata.total,
+    )
 
 
 @router.post("", response_model=TransactionRead)

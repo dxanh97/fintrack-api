@@ -2,7 +2,7 @@ from dataclasses import replace
 from uuid import UUID, uuid4
 
 from app.handlers.transactions.exceptions import TransactionNotFoundError
-from app.handlers.transactions.models import Transaction
+from app.handlers.transactions.models import PageMetadata, Transaction
 from app.handlers.transactions.repository import TransactionRepository
 from app.handlers.transactions.schemas import TransactionCreate, TransactionUpdate
 
@@ -12,25 +12,27 @@ class TransactionService:
         self._repo = repo
 
     def create(self, data: TransactionCreate) -> Transaction:
-        transaction = Transaction(id=uuid4(), title=data.title, amount=data.amount)
+        transaction = Transaction(
+            id=uuid4(), title=data.title, amount=data.amount, type=data.type
+        )
         self._repo.add(transaction)
         return transaction
 
-    def get(self, transaction_id: UUID) -> Transaction:
-        transaction = self._repo.get(transaction_id)
+    def get_by_id(self, transaction_id: UUID) -> Transaction:
+        transaction = self._repo.get_by_id(transaction_id)
         if transaction is None:
             raise TransactionNotFoundError(transaction_id)
         return transaction
 
-    def list_all(self) -> list[Transaction]:
-        return self._repo.list_all()
+    def get(self, page: int, size: int) -> tuple[list[Transaction], PageMetadata]:
+        return self._repo.get(page, size)
 
     def delete(self, transaction_id: UUID) -> None:
-        self.get(transaction_id)
+        self.get_by_id(transaction_id)
         self._repo.delete(transaction_id)
 
     def update(self, transaction_id: UUID, data: TransactionUpdate) -> Transaction:
-        transaction = self.get(transaction_id)
+        transaction = self.get_by_id(transaction_id)
         changes = data.model_dump(exclude_unset=True, exclude_none=True)
         updated_transaction = replace(transaction, **changes)
         self._repo.update(updated_transaction)
